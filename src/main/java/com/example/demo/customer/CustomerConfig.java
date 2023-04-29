@@ -25,7 +25,7 @@ public class CustomerConfig {
                     "Kiro",
                     "16 ElNozha Street",
                     "kiro@gmail.com",
-                    "01273615173",
+                    "01273615175",
                     LocalDate.of(1999, Month.MARCH, 9)
             );
 
