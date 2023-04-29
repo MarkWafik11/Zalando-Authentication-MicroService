@@ -1,10 +1,18 @@
 package com.example.demo.customer;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 @Entity
 @Table
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Customer {
     @Id
     @SequenceGenerator(
@@ -20,11 +28,9 @@ public class Customer {
     private String name;
     private String address;
     private String email;
+    private String password;
     private String telephoneNumber;
     private LocalDate dateOfBirth;
-
-    public Customer() {
-    }
 
     public Customer(Long id, String name, String address, String email, String telephoneNumber, LocalDate dateOfBirth) {
         this.id = id;
