@@ -1,12 +1,9 @@
 package com.example.demo.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.example.demo.customer.Customer;
+import com.example.demo.merchant.Merchant;
+import jakarta.persistence.*;
+
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -27,12 +24,39 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue
-    private Integer id;
-    private String firstname;
-    private String lastname;
+    private Long id;
     private String email;
     private String password;
 
+    @OneToOne(mappedBy = "userDetails1")
+    private Customer customer;
+
+    @OneToOne(mappedBy = "userDetails2")
+    private Merchant merchant;
+
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+//    private Customer customerDetails;
+//
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "merchant_id", referencedColumnName = "id")
+//    private Merchant merchantDetails;
+//
+//    public Merchant getMerchantDetails() {
+//        return merchantDetails;
+//    }
+//
+//    public void setMerchantDetails(Merchant merchantDetails) {
+//        this.merchantDetails = merchantDetails;
+//    }
+//
+//    public Customer getCustomerDetails() {
+//        return customerDetails;
+//    }
+//
+//    public void setCustomerDetails(Customer customerDetails) {
+//        this.customerDetails = customerDetails;
+//    }
 //    @Enumerated(EnumType.STRING)
 //    private Role role;
 //

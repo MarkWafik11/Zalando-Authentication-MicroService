@@ -1,5 +1,6 @@
 package com.example.demo.customer;
 
+import com.example.demo.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,47 +16,27 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Customer {
     @Id
-    @SequenceGenerator(
-            name = "customer_sequence",
-            sequenceName = "customer_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "customer_sequence"
-    )
     private Long id;
     private String name;
     private String address;
-    private String email;
-    private String password;
+
     private String telephoneNumber;
     private LocalDate dateOfBirth;
 
-    public Customer(Long id, String name, String address, String email, String telephoneNumber, LocalDate dateOfBirth) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.email = email;
-        this.telephoneNumber = telephoneNumber;
-        this.dateOfBirth = dateOfBirth;
+    @OneToOne(cascade = CascadeType.ALL)
+    @MapsId
+    @JoinColumn(name = "id")
+    private User userDetails1;
+
+    public User getUserDetails1() {
+        return userDetails1;
     }
 
-    public Customer(String name, String address, String email, String telephoneNumber, LocalDate dateOfBirth) {
-        this.name = name;
-        this.address = address;
-        this.email = email;
-        this.telephoneNumber = telephoneNumber;
-        this.dateOfBirth = dateOfBirth;
+    public void setUserDetails1(User userDetails1) {
+        this.userDetails1 = userDetails1;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+//    @OneToOne(mappedBy = "customerDetails")
+//    private User user;
 
     public String getName() {
         return name;
@@ -73,13 +54,7 @@ public class Customer {
         this.address = address;
     }
 
-    public String getEmail() {
-        return email;
-    }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getTelephoneNumber() {
         return telephoneNumber;
@@ -103,7 +78,6 @@ public class Customer {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
-                ", email='" + email + '\'' +
                 ", telephoneNumber='" + telephoneNumber + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
                 '}';

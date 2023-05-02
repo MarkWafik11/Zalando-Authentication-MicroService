@@ -1,5 +1,6 @@
 package com.example.demo.merchant;
 
+import com.example.demo.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -7,37 +8,22 @@ import java.time.LocalDate;
 @Table
 public class Merchant {
     @Id
-    @SequenceGenerator(
-            name = "merchant_sequence",
-            sequenceName = "merchant_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "merchant_sequence"
-    )
-
     private Long id;
     private String brandName;
-    private String email;
     private String hotline;
     private LocalDate dateJoined;
 
-    public Merchant() {
-    }
-    public Merchant(Long id, String brandName, String email, String hotline, LocalDate dateJoined) {
-        this.id = id;
-        this.brandName = brandName;
-        this.email = email;
-        this.hotline = hotline;
-        this.dateJoined = dateJoined;
+    @OneToOne(cascade = CascadeType.ALL)
+    @MapsId
+    @JoinColumn(name = "id")
+    private User userDetails2;
+
+    public User getUserDetails2() {
+        return userDetails2;
     }
 
-    public Merchant(String brandName, String email, String hotline, LocalDate dateJoined) {
-        this.brandName = brandName;
-        this.email = email;
-        this.hotline = hotline;
-        this.dateJoined = dateJoined;
+    public void setUserDetails2(User userDetails) {
+        this.userDetails2 = userDetails;
     }
 
     public Long getId() {
@@ -56,13 +42,6 @@ public class Merchant {
         this.brandName = brandName;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getHotline() {
         return hotline;
@@ -80,14 +59,5 @@ public class Merchant {
         this.dateJoined = dateJoined;
     }
 
-    @Override
-    public String toString() {
-        return "Merchant{" +
-                "id=" + id +
-                ", brandName='" + brandName + '\'' +
-                ", email='" + email + '\'' +
-                ", hotline='" + hotline + '\'' +
-                ", dateJoined=" + dateJoined +
-                '}';
-    }
+
 }
