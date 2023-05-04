@@ -2,6 +2,7 @@ package com.example.demo.user;
 
 import com.example.demo.customer.Customer;
 import com.example.demo.merchant.Merchant;
+import com.example.demo.token.Token;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -27,12 +28,12 @@ public class User implements UserDetails {
     private Long id;
     private String email;
     private String password;
-
     @OneToOne(mappedBy = "userDetails1")
     private Customer customer;
-
     @OneToOne(mappedBy = "userDetails2")
     private Merchant merchant;
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
 
 //    @OneToOne(cascade = CascadeType.ALL)
 //    @JoinColumn(name = "customer_id", referencedColumnName = "id")

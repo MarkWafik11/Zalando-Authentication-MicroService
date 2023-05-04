@@ -5,6 +5,9 @@ import com.example.demo.customer.Customer;
 import com.example.demo.customer.CustomerRepository;
 import com.example.demo.merchant.Merchant;
 import com.example.demo.merchant.MerchantRepository;
+import com.example.demo.token.Token;
+import com.example.demo.token.TokenRepository;
+import com.example.demo.token.TokenType;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ public class AuthenticationService {
     private final UserRepository repository;
     private final CustomerRepository customerRepository;
     private final MerchantRepository merchantRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -40,7 +44,6 @@ public class AuthenticationService {
             customerRepository.save(customer);
         }
         else{
-            System.out.print("HEHEHHE");
             Merchant merchant = new Merchant();
             merchant.setBrandName(request.getBrandName());
             merchant.setDateJoined(request.getDateJoined());
@@ -52,7 +55,7 @@ public class AuthenticationService {
         var savedUser = repository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-       // saveUserToken(savedUser, jwtToken);
+        saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -70,14 +73,32 @@ public class AuthenticationService {
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        //revokeAllUserTokens(user);
-        //saveUserToken(user, jwtToken);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-
                 .build();
     }
 
-
+    private void saveUserToken(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
+    }
+    private void revokeAllUserTokens(User user) {
+        var validUserTokens = tokenRepository.findAllValidTokensByUser(user.getId());
+        if (validUserTokens.isEmpty())
+            return;
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
+    }
 }

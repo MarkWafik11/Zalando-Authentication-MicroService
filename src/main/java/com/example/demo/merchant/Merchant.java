@@ -42,7 +42,6 @@ public class Merchant {
         this.brandName = brandName;
     }
 
-
     public String getHotline() {
         return hotline;
     }
@@ -58,6 +57,4 @@ public class Merchant {
     public void setDateJoined(LocalDate dateJoined) {
         this.dateJoined = dateJoined;
     }
-
-
 }

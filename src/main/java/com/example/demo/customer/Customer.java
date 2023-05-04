@@ -19,7 +19,6 @@ public class Customer {
     private Long id;
     private String name;
     private String address;
-
     private String telephoneNumber;
     private LocalDate dateOfBirth;
 
@@ -35,8 +34,6 @@ public class Customer {
     public void setUserDetails1(User userDetails1) {
         this.userDetails1 = userDetails1;
     }
-//    @OneToOne(mappedBy = "customerDetails")
-//    private User user;
 
     public String getName() {
         return name;
@@ -53,8 +50,6 @@ public class Customer {
     public void setAddress(String address) {
         this.address = address;
     }
-
-
 
     public String getTelephoneNumber() {
         return telephoneNumber;
