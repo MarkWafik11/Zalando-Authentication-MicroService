@@ -17,7 +17,8 @@ import java.time.LocalDate;
 public class Customer {
     @Id
     private Long id;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String address;
     private String telephoneNumber;
     private LocalDate dateOfBirth;
@@ -30,23 +31,27 @@ public class Customer {
     public User getUserDetails1() {
         return userDetails1;
     }
-
     public void setUserDetails1(User userDetails1) {
         this.userDetails1 = userDetails1;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getAddress() {
         return address;
     }
-
     public void setAddress(String address) {
         this.address = address;
     }
@@ -54,7 +59,6 @@ public class Customer {
     public String getTelephoneNumber() {
         return telephoneNumber;
     }
-
     public void setTelephoneNumber(String telephoneNumber) {
         this.telephoneNumber = telephoneNumber;
     }
@@ -62,7 +66,6 @@ public class Customer {
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
-
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
@@ -71,7 +74,8 @@ public class Customer {
     public String toString() {
         return "Customer{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", address='" + address + '\'' +
                 ", telephoneNumber='" + telephoneNumber + '\'' +
                 ", dateOfBirth=" + dateOfBirth +

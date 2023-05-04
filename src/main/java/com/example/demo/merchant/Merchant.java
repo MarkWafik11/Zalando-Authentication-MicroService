@@ -21,7 +21,6 @@ public class Merchant {
     public User getUserDetails2() {
         return userDetails2;
     }
-
     public void setUserDetails2(User userDetails) {
         this.userDetails2 = userDetails;
     }
@@ -29,7 +28,6 @@ public class Merchant {
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -37,7 +35,6 @@ public class Merchant {
     public String getBrandName() {
         return brandName;
     }
-
     public void setBrandName(String brandName) {
         this.brandName = brandName;
     }
@@ -45,7 +42,6 @@ public class Merchant {
     public String getHotline() {
         return hotline;
     }
-
     public void setHotline(String hotline) {
         this.hotline = hotline;
     }
@@ -53,7 +49,6 @@ public class Merchant {
     public LocalDate getDateJoined() {
         return dateJoined;
     }
-
     public void setDateJoined(LocalDate dateJoined) {
         this.dateJoined = dateJoined;
     }
