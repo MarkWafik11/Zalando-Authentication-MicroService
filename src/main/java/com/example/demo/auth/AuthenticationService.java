@@ -36,7 +36,8 @@ public class AuthenticationService {
 
         if(request.getRole().equals("customer")){
             Customer customer = new Customer();
-            customer.setName(request.getName());
+            customer.setFirstName(request.getFirstName());
+            customer.setLastName(request.getLastName());
             customer.setAddress(request.getAddress());
             customer.setDateOfBirth(request.getDateOfBirth());
             customer.setTelephoneNumber(request.getTelephoneNumber());
