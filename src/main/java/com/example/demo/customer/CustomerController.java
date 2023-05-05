@@ -18,8 +18,4 @@ public class CustomerController {
     public List<Customer> getCustomers(){
         return customerService.getCustomers();
     }
-//    @PostMapping
-//    public void registerNewCustomer(@RequestBody Customer customer){
-//        customerService.addNewCustomer(customer);
-//    }
 }

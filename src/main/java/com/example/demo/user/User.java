@@ -28,6 +28,7 @@ public class User implements UserDetails {
     private Long id;
     private String email;
     private String password;
+    private String role;
     @OneToOne(mappedBy = "userDetails1")
     private Customer customer;
     @OneToOne(mappedBy = "userDetails2")

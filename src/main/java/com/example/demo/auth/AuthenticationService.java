@@ -10,18 +10,23 @@ import com.example.demo.token.TokenRepository;
 import com.example.demo.token.TokenType;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Properties;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final MerchantRepository merchantRepository;
     private final TokenRepository tokenRepository;
@@ -29,8 +34,14 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public AuthenticationResponse register(RegisterRequest request) {
+        Optional<User> userWithThisEmail = userRepository.findUserByEmail(request.getEmail());
+        if(userWithThisEmail.isPresent()){
+            throw new IllegalStateException("Email already taken");
+        }
+
         var user = User.builder()
                 .email(request.getEmail())
+                .role(request.getRole())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
@@ -53,7 +64,7 @@ public class AuthenticationService {
             merchantRepository.save(merchant);
         }
 
-        var savedUser = repository.save(user);
+        var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
@@ -70,8 +81,8 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user = repository.findByEmail(request.getEmail())
-                .orElseThrow();
+        var user = userRepository.findUserByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
@@ -80,6 +91,69 @@ public class AuthenticationService {
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+    @Transactional
+    public void editProfile(EditRequest editRequest, HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return;
+        }
+        jwt = authHeader.substring(7);
+        var storedToken = tokenRepository.findByToken(jwt)
+                .orElse(null);
+        if(storedToken.isExpired() || storedToken.isRevoked()){
+            throw new IllegalStateException("Not logged in");
+        }
+        if (storedToken != null) {
+            var user = storedToken.getUser();
+            if(editRequest.getEmail() != null && editRequest.getEmail().length() > 0 &&
+            !editRequest.getEmail().equals(user.getEmail())){
+                Optional<User> userWithThisEmail = userRepository.findUserByEmail(editRequest.getEmail());
+                if(userWithThisEmail.isPresent()){
+                    throw new IllegalStateException("Email already taken");
+                }
+                user.setEmail(editRequest.getEmail());
+            }
+            if(editRequest.getPassword() != null && editRequest.getPassword().length() > 0){
+                user.setPassword(passwordEncoder.encode(editRequest.getPassword()));
+            }
+            userRepository.save(user);
+
+            if(user.getRole().equals("customer")){
+                var customerToBeEdited = customerRepository.findCustomerById(user.getId());
+                if(editRequest.getFirstName() != null && editRequest.getFirstName().length() > 0){
+                    customerToBeEdited.get().setFirstName(editRequest.getFirstName());
+                }
+                if(editRequest.getLastName() != null && editRequest.getLastName().length() > 0){
+                    customerToBeEdited.get().setLastName(editRequest.getLastName());
+                }
+                if(editRequest.getAddress() != null && editRequest.getAddress().length() > 0){
+                    customerToBeEdited.get().setAddress(editRequest.getAddress());
+                }
+                if(editRequest.getTelephoneNumber() != null && editRequest.getTelephoneNumber().length() > 0){
+                    customerToBeEdited.get().setTelephoneNumber(editRequest.getTelephoneNumber());
+                }
+                if(editRequest.getDateOfBirth() != null){
+                    customerToBeEdited.get().setDateOfBirth(editRequest.getDateOfBirth());
+                }
+                customerRepository.save(customerToBeEdited.get());
+            }
+
+            else if(user.getRole().equals("merchant")){
+                var merchantToBeEdited = merchantRepository.findMerchantById(user.getId());
+                if(editRequest.getBrandName() != null && editRequest.getBrandName().length() > 0){
+                    merchantToBeEdited.get().setBrandName(editRequest.getBrandName());
+                }
+                if(editRequest.getHotline() != null && editRequest.getHotline().length() > 0){
+                    merchantToBeEdited.get().setHotline(editRequest.getHotline());
+                }
+                if(editRequest.getDateJoined() != null){
+                    merchantToBeEdited.get().setDateJoined(editRequest.getDateJoined());
+                }
+                merchantRepository.save(merchantToBeEdited.get());
+            }
+        }
     }
 
     private void saveUserToken(User user, String jwtToken) {
