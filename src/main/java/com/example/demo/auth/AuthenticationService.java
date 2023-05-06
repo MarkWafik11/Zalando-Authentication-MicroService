@@ -33,7 +33,9 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public AuthenticationResponse register(RegisterRequest request) {
+
+
+    public AuthenticationResponse customerRegister(CustomerRegisterRequest request){
         Optional<User> userWithThisEmail = userRepository.findUserByEmail(request.getEmail());
         if(userWithThisEmail.isPresent()){
             throw new IllegalStateException("Email already taken");
@@ -41,28 +43,19 @@ public class AuthenticationService {
 
         var user = User.builder()
                 .email(request.getEmail())
-                .role(request.getRole())
+                .role("customer")
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        if(request.getRole().equals("customer")){
-            Customer customer = new Customer();
-            customer.setFirstName(request.getFirstName());
-            customer.setLastName(request.getLastName());
-            customer.setAddress(request.getAddress());
-            customer.setDateOfBirth(request.getDateOfBirth());
-            customer.setTelephoneNumber(request.getTelephoneNumber());
-            customer.setUserDetails1(user);
-            customerRepository.save(customer);
-        }
-        else{
-            Merchant merchant = new Merchant();
-            merchant.setBrandName(request.getBrandName());
-            merchant.setDateJoined(request.getDateJoined());
-            merchant.setHotline(request.getHotline());
-            merchant.setUserDetails2(user);
-            merchantRepository.save(merchant);
-        }
+
+        Customer customer = new Customer();
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
+        customer.setAddress(request.getAddress());
+        customer.setDateOfBirth(request.getDateOfBirth());
+        customer.setTelephoneNumber(request.getTelephoneNumber());
+        customer.setUserDetails1(user);
+        customerRepository.save(customer);
 
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
@@ -73,6 +66,39 @@ public class AuthenticationService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+
+    public AuthenticationResponse merchantRegister(MerchantRegisterRequest request){
+        Optional<User> userWithThisEmail = userRepository.findUserByEmail(request.getEmail());
+        if(userWithThisEmail.isPresent()){
+            throw new IllegalStateException("Email already taken");
+        }
+
+        var user = User.builder()
+                .email(request.getEmail())
+                .role("merchant")
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+
+        Merchant merchant = new Merchant();
+        merchant.setBrandName(request.getBrandName());
+        merchant.setDateJoined(request.getDateJoined());
+        merchant.setHotline(request.getHotline());
+        merchant.setUserDetails2(user);
+        merchantRepository.save(merchant);
+
+        var savedUser = userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(savedUser, jwtToken);
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
