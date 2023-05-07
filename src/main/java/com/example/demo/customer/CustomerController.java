@@ -27,4 +27,11 @@ public class CustomerController {
     ) {
         customerService.editCustomerProfile(customerEditRequest, request);
     }
+
+    @PostMapping("/deleteAccount")
+    public void deleteAccount(
+            HttpServletRequest request
+    ) {
+        customerService.deleteAccount(request);
+    }
 }

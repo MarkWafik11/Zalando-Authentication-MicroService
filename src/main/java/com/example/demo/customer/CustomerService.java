@@ -1,5 +1,6 @@
 package com.example.demo.customer;
 
+import com.example.demo.token.Token;
 import com.example.demo.token.TokenRepository;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
@@ -67,6 +68,24 @@ public class CustomerService {
                 customerToBeEdited.get().setDateOfBirth(customerEditRequest.getDateOfBirth());
             }
             customerRepository.save(customerToBeEdited.get());
+        }
+    }
+
+    public void deleteAccount(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return;
+        }
+        jwt = authHeader.substring(7);
+        var storedToken = tokenRepository.findByToken(jwt)
+                .orElse(null);
+        if (storedToken != null) {
+            var userIDToBeDeleted = storedToken.getUser().getId();
+            List<Token> tokensToBeDeleted = tokenRepository.findAllTokensByUserID(userIDToBeDeleted);
+            tokenRepository.deleteAll(tokensToBeDeleted);
+            customerRepository.deleteById(userIDToBeDeleted);
+            userRepository.deleteById(userIDToBeDeleted);
         }
     }
 }

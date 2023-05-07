@@ -27,4 +27,11 @@ public class MerchantController {
     ) {
         merchantService.editMerchantProfile(merchantEditRequest, request);
     }
+
+    @PostMapping("/deleteAccount")
+    public void deleteAccount(
+            HttpServletRequest request
+    ) {
+        merchantService.deleteAccount(request);
+    }
 }

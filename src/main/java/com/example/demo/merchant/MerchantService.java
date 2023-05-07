@@ -1,5 +1,6 @@
 package com.example.demo.merchant;
 
+import com.example.demo.token.Token;
 import com.example.demo.token.TokenRepository;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
@@ -59,6 +60,24 @@ public class MerchantService {
                 merchantToBeEdited.get().setHotline(merchantEditRequest.getHotline());
             }
             merchantRepository.save(merchantToBeEdited.get());
+        }
+    }
+
+    public void deleteAccount(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return;
+        }
+        jwt = authHeader.substring(7);
+        var storedToken = tokenRepository.findByToken(jwt)
+                .orElse(null);
+        if (storedToken != null) {
+            var userIDToBeDeleted = storedToken.getUser().getId();
+            List<Token> tokensToBeDeleted = tokenRepository.findAllTokensByUserID(userIDToBeDeleted);
+            tokenRepository.deleteAll(tokensToBeDeleted);
+            merchantRepository.deleteById(userIDToBeDeleted);
+            userRepository.deleteById(userIDToBeDeleted);
         }
     }
 }
