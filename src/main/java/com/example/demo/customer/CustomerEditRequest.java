@@ -1,4 +1,4 @@
-package com.example.demo.auth;
+package com.example.demo.customer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,12 +11,13 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MerchantRegisterRequest {
-
+public class CustomerEditRequest {
     private String email;
     private String password;
+    private String firstName;
+    private String lastName;
+    private String address;
+    private String telephoneNumber;
+    private LocalDate dateOfBirth;
 
-    private String brandName;
-    private String hotline;
-    private LocalDate dateJoined;
 }

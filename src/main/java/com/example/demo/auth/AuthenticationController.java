@@ -1,8 +1,11 @@
 package com.example.demo.auth;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.demo.customer.CustomerRegisterRequest;
+import com.example.demo.merchant.MerchantRegisterRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,30 +15,41 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/customer/register")
-    public ResponseEntity<AuthenticationResponse> customerRegister(
-            @RequestBody CustomerRegisterRequest request
+    public ResponseEntity<AuthenticationResponse> registerCustomer(
+            @Valid @RequestBody CustomerRegisterRequest request, BindingResult bindingResult
     ) {
-        return ResponseEntity.ok(authenticationService.customerRegister(request));
+        if(bindingResult.hasErrors()){
+            AuthenticationResponse errorResponse = new AuthenticationResponse();
+            errorResponse.setMessage("Empty fields");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        return ResponseEntity.ok(authenticationService.registerCustomer(request));
     }
     @PostMapping("/merchant/register")
-    public ResponseEntity<AuthenticationResponse> merchantRegister(
-            @RequestBody MerchantRegisterRequest request
+    public ResponseEntity<AuthenticationResponse> registerMerchant(
+            @Valid @RequestBody MerchantRegisterRequest request, BindingResult bindingResult
     ) {
-        return ResponseEntity.ok(authenticationService.merchantRegister(request));
+        if(bindingResult.hasErrors()){
+            AuthenticationResponse errorResponse = new AuthenticationResponse();
+            errorResponse.setMessage("Empty fields");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        return ResponseEntity.ok(authenticationService.registerMerchant(request));
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
+    @PostMapping("/customer/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticateCustomer(
             @RequestBody AuthenticationRequest request
     ) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        return ResponseEntity.ok(authenticationService.authenticateCustomer(request));
     }
 
-    @PutMapping("/editProfile")
-    public void editProfile(
-            @RequestBody EditRequest editRequest,
-            HttpServletRequest request
+    @PostMapping("/merchant/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticateMerchant(
+            @RequestBody AuthenticationRequest request
     ) {
-        authenticationService.editProfile(editRequest, request);
+        return ResponseEntity.ok(authenticationService.authenticateMerchant(request));
     }
 }

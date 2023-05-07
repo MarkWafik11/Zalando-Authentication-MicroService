@@ -1,5 +1,6 @@
-package com.example.demo.auth;
+package com.example.demo.customer;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,18 +12,19 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EditRequest {
-
+public class CustomerRegisterRequest {
+    @NotNull
     private String email;
+    @NotNull
     private String password;
-
+    @NotNull
     private String firstName;
+    @NotNull
     private String lastName;
+    @NotNull
     private String address;
+    @NotNull
     private String telephoneNumber;
+    @NotNull
     private LocalDate dateOfBirth;
-
-    private String brandName;
-    private String hotline;
-    private LocalDate dateJoined;
 }

@@ -28,39 +28,14 @@ public class User implements UserDetails {
     private Long id;
     private String email;
     private String password;
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @OneToOne(mappedBy = "userDetails1")
     private Customer customer;
     @OneToOne(mappedBy = "userDetails2")
     private Merchant merchant;
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
-
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "customer_id", referencedColumnName = "id")
-//    private Customer customerDetails;
-//
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "merchant_id", referencedColumnName = "id")
-//    private Merchant merchantDetails;
-//
-//    public Merchant getMerchantDetails() {
-//        return merchantDetails;
-//    }
-//
-//    public void setMerchantDetails(Merchant merchantDetails) {
-//        this.merchantDetails = merchantDetails;
-//    }
-//
-//    public Customer getCustomerDetails() {
-//        return customerDetails;
-//    }
-//
-//    public void setCustomerDetails(Customer customerDetails) {
-//        this.customerDetails = customerDetails;
-//    }
-//    @Enumerated(EnumType.STRING)
-//    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,5 +1,6 @@
 package com.example.demo.customer;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,5 +18,13 @@ public class CustomerController {
     @GetMapping
     public List<Customer> getCustomers(){
         return customerService.getCustomers();
+    }
+
+    @PutMapping("/editProfile")
+    public void editCustomerProfile(
+            @RequestBody CustomerEditRequest customerEditRequest,
+            HttpServletRequest request
+    ) {
+        customerService.editCustomerProfile(customerEditRequest, request);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.merchant;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +19,12 @@ public class MerchantController {
     public List<Merchant> getMerchants(){
         return merchantService.getMerchants();
     }
-    @PostMapping
-    public void registerNewMerchant(@RequestBody Merchant merchant){
-        merchantService.addNewMerchant(merchant);
+
+    @PutMapping("/editProfile")
+    public void editMerchantProfile(
+            @RequestBody MerchantEditRequest merchantEditRequest,
+            HttpServletRequest request
+    ) {
+        merchantService.editMerchantProfile(merchantEditRequest, request);
     }
 }

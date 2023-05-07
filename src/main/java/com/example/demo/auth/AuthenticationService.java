@@ -2,26 +2,25 @@ package com.example.demo.auth;
 
 import com.example.demo.config.JwtService;
 import com.example.demo.customer.Customer;
+import com.example.demo.customer.CustomerRegisterRequest;
 import com.example.demo.customer.CustomerRepository;
 import com.example.demo.merchant.Merchant;
+import com.example.demo.merchant.MerchantRegisterRequest;
 import com.example.demo.merchant.MerchantRepository;
 import com.example.demo.token.Token;
 import com.example.demo.token.TokenRepository;
 import com.example.demo.token.TokenType;
+import com.example.demo.user.Role;
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.Properties;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +34,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
 
-    public AuthenticationResponse customerRegister(CustomerRegisterRequest request){
+    public AuthenticationResponse registerCustomer(CustomerRegisterRequest request){
         Optional<User> userWithThisEmail = userRepository.findUserByEmail(request.getEmail());
         if(userWithThisEmail.isPresent()){
             throw new IllegalStateException("Email already taken");
@@ -43,10 +42,9 @@ public class AuthenticationService {
 
         var user = User.builder()
                 .email(request.getEmail())
-                .role("customer")
+                .role(Role.Customer)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
-
 
         Customer customer = new Customer();
         customer.setFirstName(request.getFirstName());
@@ -64,11 +62,12 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .message("Registered successfully")
                 .build();
     }
 
 
-    public AuthenticationResponse merchantRegister(MerchantRegisterRequest request){
+    public AuthenticationResponse registerMerchant(MerchantRegisterRequest request){
         Optional<User> userWithThisEmail = userRepository.findUserByEmail(request.getEmail());
         if(userWithThisEmail.isPresent()){
             throw new IllegalStateException("Email already taken");
@@ -76,7 +75,7 @@ public class AuthenticationService {
 
         var user = User.builder()
                 .email(request.getEmail())
-                .role("merchant")
+                .role(Role.Merchant)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
@@ -94,13 +93,12 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .message("Registered successfully")
                 .build();
     }
 
 
-
-
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticateCustomer(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -116,70 +114,28 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .message("Logged in successfully")
                 .build();
     }
-    @Transactional
-    public void editProfile(EditRequest editRequest, HttpServletRequest request) {
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-        jwt = authHeader.substring(7);
-        var storedToken = tokenRepository.findByToken(jwt)
-                .orElse(null);
-        if(storedToken.isExpired() || storedToken.isRevoked()){
-            throw new IllegalStateException("Not logged in");
-        }
-        if (storedToken != null) {
-            var user = storedToken.getUser();
-            if(editRequest.getEmail() != null && editRequest.getEmail().length() > 0 &&
-            !editRequest.getEmail().equals(user.getEmail())){
-                Optional<User> userWithThisEmail = userRepository.findUserByEmail(editRequest.getEmail());
-                if(userWithThisEmail.isPresent()){
-                    throw new IllegalStateException("Email already taken");
-                }
-                user.setEmail(editRequest.getEmail());
-            }
-            if(editRequest.getPassword() != null && editRequest.getPassword().length() > 0){
-                user.setPassword(passwordEncoder.encode(editRequest.getPassword()));
-            }
-            userRepository.save(user);
 
-            if(user.getRole().equals("customer")){
-                var customerToBeEdited = customerRepository.findCustomerById(user.getId());
-                if(editRequest.getFirstName() != null && editRequest.getFirstName().length() > 0){
-                    customerToBeEdited.get().setFirstName(editRequest.getFirstName());
-                }
-                if(editRequest.getLastName() != null && editRequest.getLastName().length() > 0){
-                    customerToBeEdited.get().setLastName(editRequest.getLastName());
-                }
-                if(editRequest.getAddress() != null && editRequest.getAddress().length() > 0){
-                    customerToBeEdited.get().setAddress(editRequest.getAddress());
-                }
-                if(editRequest.getTelephoneNumber() != null && editRequest.getTelephoneNumber().length() > 0){
-                    customerToBeEdited.get().setTelephoneNumber(editRequest.getTelephoneNumber());
-                }
-                if(editRequest.getDateOfBirth() != null){
-                    customerToBeEdited.get().setDateOfBirth(editRequest.getDateOfBirth());
-                }
-                customerRepository.save(customerToBeEdited.get());
-            }
-
-            else if(user.getRole().equals("merchant")){
-                var merchantToBeEdited = merchantRepository.findMerchantById(user.getId());
-                if(editRequest.getBrandName() != null && editRequest.getBrandName().length() > 0){
-                    merchantToBeEdited.get().setBrandName(editRequest.getBrandName());
-                }
-                if(editRequest.getHotline() != null && editRequest.getHotline().length() > 0){
-                    merchantToBeEdited.get().setHotline(editRequest.getHotline());
-                }
-                if(editRequest.getDateJoined() != null){
-                    merchantToBeEdited.get().setDateJoined(editRequest.getDateJoined());
-                }
-                merchantRepository.save(merchantToBeEdited.get());
-            }
-        }
+    public AuthenticationResponse authenticateMerchant(AuthenticationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        var user = userRepository.findUserByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwtToken);
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .message("Logged in successfully")
+                .build();
     }
 
     private void saveUserToken(User user, String jwtToken) {
