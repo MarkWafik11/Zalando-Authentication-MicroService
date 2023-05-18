@@ -69,6 +69,9 @@ public class CustomerService {
             if(customerEditRequest.getDateOfBirth() != null){
                 customerToBeEdited.get().setDateOfBirth(customerEditRequest.getDateOfBirth());
             }
+            if(customerEditRequest.getCreditCardNumber() != null){
+                customerToBeEdited.get().setCreditCardNumber(customerEditRequest.getCreditCardNumber());
+            }
             customerRepository.save(customerToBeEdited.get());
         }
     }

@@ -17,6 +17,7 @@ public class RedisService {
         Session session = new Session();
         session.setToken(token.getToken());
         session.setRole(user.getRole());
+        session.setUserID(user.getId());
         return session;
     }
     @CacheEvict(cacheNames = "sessions", key = "#token.getId()")
